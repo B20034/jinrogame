@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
+<head>
+  <meta charset="utf-8">
+  <title>参加者</title>
+<script>
+  window.onload = function () {
+    var sse = new EventSource('/vote/step5');
+    sse.onmessage = function (event) {
+      console.log("sse.onmessage")
+      console.log(event.data);
+      var users_list = JSON.parse(event.data);//JSONオブジェクトとしてparse
+      var users_table = "";
+      // DBに残っているフルーツのリストがJSONオブジェクトとして得られるので，htmlを作成し，tbodyの中身毎入れ替える
+      for (var i = 0; i < users_list.length; i++) {
+        var bgn_tr = "<tr>";
+        var end_tr = "</tr>";
+        var idx = "<td>" + i + "</td>";
+        var u_name = "<td>" + users_list[i].name + "</td>";
+        var u_proc = "<td>" + "<a href='/vote/step3?id=" + fruits_list[i].id + "'>処刑</a>" + "</td>"
+        users_table = users_table + bgn_tr + idx + u_name + u_proc + end_tr;
+
+      }
+      console.log(users_table);
+      var tbody = document.getElementById("users_list");
+      tbody.innerHTML = users_table;//idがfruits_listのtbodyのHTMLを差し替える
+    }
+  }
+</script>
+</head>
+
+<body>
+  <a href="/logout">ログアウト</a>
+  <p>vote.htmlを表示はできるようにしました</p>
+
+  <div>
+    <table border="1">
+      <thead>
+        <th>名前</th>
+      </thead>
+      <tbody id = "users_list">
+        <span th:if="${users}">
+          <tr th:each="user,stat:${users}">
+           <td>[[${user.userName}]]</td>
+           <td><a th:href="@{/vote/step3(id=${user.id})}">処刑</a></td>
+          </tr>
+        </span>
+      </tbody>
+    </table>
+  </div>
+  <div th:if="${user}">
+    [[${user.userName}]]処刑しました
+  </div>
+</body>
+
+</html>
